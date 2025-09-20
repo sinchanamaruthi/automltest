@@ -16,7 +16,8 @@ from sklearn.metrics import accuracy_score, mean_squared_error, classification_r
 from sklearn.metrics import roc_curve, auc, confusion_matrix, r2_score, mean_absolute_error
 import matplotlib.pyplot as plt
 import seaborn as sns
-import openai
+# OpenAI import removed for Streamlit Cloud compatibility
+OPENAI_AVAILABLE = False
 from datetime import datetime
 
 st.set_page_config(page_title="Integrated ML Pipeline", layout="wide")
@@ -484,7 +485,7 @@ elif dataset_source == "Kaggle":
     # Kaggle dataset selection method
     kaggle_method = st.radio(
         "Choose how to explore datasets:",
-        ["Popular Datasets", "Search on Kaggle", "Download & Upload"],
+        ["Search on Kaggle", "Download & Upload"],
         horizontal=True
     )
     
@@ -535,9 +536,11 @@ elif dataset_source == "Kaggle":
             if st.button("🔑 Login to Kaggle", type="secondary"):
                 st.markdown(redirect_to_kaggle_login(), unsafe_allow_html=True)
         
-        # Show some popular search suggestions
+        # Show popular search suggestions
         st.subheader("💡 Popular Search Suggestions:")
-        col1, col2, col3 = st.columns(3)
+        
+        # First row
+        col1, col2, col3, col4 = st.columns(4)
         
         with col1:
             if st.button("🏠 Real Estate", key="suggest_real_estate"):
@@ -556,6 +559,39 @@ elif dataset_source == "Kaggle":
                 st.markdown(redirect_to_kaggle_search("gaming"), unsafe_allow_html=True)
             if st.button("🌍 Climate", key="suggest_climate"):
                 st.markdown(redirect_to_kaggle_search("climate"), unsafe_allow_html=True)
+        
+        with col4:
+            if st.button("🎓 Education", key="suggest_education"):
+                st.markdown(redirect_to_kaggle_search("education"), unsafe_allow_html=True)
+            if st.button("🚗 Transportation", key="suggest_transport"):
+                st.markdown(redirect_to_kaggle_search("transportation"), unsafe_allow_html=True)
+        
+        # Second row
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            if st.button("💰 Finance", key="suggest_finance"):
+                st.markdown(redirect_to_kaggle_search("finance"), unsafe_allow_html=True)
+            if st.button("🍕 Food & Restaurant", key="suggest_food"):
+                st.markdown(redirect_to_kaggle_search("food restaurant"), unsafe_allow_html=True)
+        
+        with col2:
+            if st.button("🏃 Sports", key="suggest_sports"):
+                st.markdown(redirect_to_kaggle_search("sports"), unsafe_allow_html=True)
+            if st.button("🎵 Music", key="suggest_music"):
+                st.markdown(redirect_to_kaggle_search("music"), unsafe_allow_html=True)
+        
+        with col3:
+            if st.button("📱 Social Media", key="suggest_social"):
+                st.markdown(redirect_to_kaggle_search("social media"), unsafe_allow_html=True)
+            if st.button("🛍️ Retail", key="suggest_retail"):
+                st.markdown(redirect_to_kaggle_search("retail"), unsafe_allow_html=True)
+        
+        with col4:
+            if st.button("🔬 Research", key="suggest_research"):
+                st.markdown(redirect_to_kaggle_search("research"), unsafe_allow_html=True)
+            if st.button("🌐 Web Analytics", key="suggest_web"):
+                st.markdown(redirect_to_kaggle_search("web analytics"), unsafe_allow_html=True)
     
     elif kaggle_method == "Download & Upload":
         st.subheader("📥 Download & Upload Method")
@@ -568,50 +604,36 @@ elif dataset_source == "Kaggle":
         - 🚀 **Run ML Pipeline** - Your data will be processed automatically!
         """)
         
-        # Show popular datasets with download links
-        st.subheader("📊 Popular Datasets - Click to Download")
+        # Instructions for finding datasets
+        st.subheader("📋 How to Find Datasets on Kaggle")
         
-        # Create a grid layout for better organization
-        cols = st.columns(2)
+        st.info("""
+        **🔍 Finding the Right Dataset:**
         
-        for i, (name, info) in enumerate(popular_datasets.items()):
-            with cols[i % 2]:
-                with st.container():
-                    st.markdown(f"### 📊 {name}")
-                    
-                    # Dataset info
-                    st.write(f"**Description:** {info['description']}")
-                    st.write(f"**Size:** {info['size']} | **Downloads:** {info['downloads']} | **Votes:** {info['votes']}")
-                    st.write(f"**Tags:** {info['tags']}")
-                    
-                    # Create download link
-                    kaggle_url = f"https://www.kaggle.com/datasets/{info['ref']}"
-                    
-                    # Better styled download button
-                    download_html = f"""
-                    <div style="text-align: center; margin: 10px 0;">
-                        <a href="{kaggle_url}" target="_blank" 
-                           style="background-color: #20beff; color: white; padding: 12px 24px; 
-                                  text-decoration: none; border-radius: 8px; display: inline-block; 
-                                  font-weight: bold; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                            🔗 Open in Kaggle & Download
-                        </a>
-                    </div>
-                    """
-                    st.markdown(download_html, unsafe_allow_html=True)
-                    
-                    # Instructions
-                    with st.expander("📋 Download Instructions"):
-                        st.write("**Step-by-step guide:**")
-                        st.write("1. **Click the blue button above** - Opens Kaggle in new tab")
-                        st.write("2. **Sign in to Kaggle** (if not already signed in)")
-                        st.write("3. **Click the 'Download' button** on the dataset page")
-                        st.write("4. **Save the zip file** to your computer")
-                        st.write("5. **Extract the zip file** to get the CSV")
-                        st.write("6. **Upload the CSV below** using the file uploader")
-                        st.write("7. **Run your ML pipeline!** 🚀")
-                    
-                    st.markdown("---")
+        1. **Use the Search on Kaggle** option above to find datasets by topic
+        2. **Browse popular categories** using the search suggestions
+        3. **Visit Kaggle's dataset page** directly at [kaggle.com/datasets](https://www.kaggle.com/datasets)
+        4. **Filter by size, format, and popularity** on Kaggle's website
+        5. **Download the dataset** as a zip file
+        6. **Extract and upload** the CSV file below
+        """)
+        
+        # Quick access to Kaggle
+        st.subheader("🚀 Quick Access to Kaggle")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            if st.button("🔗 Browse All Datasets", key="browse_all"):
+                st.markdown(redirect_to_kaggle_search(""), unsafe_allow_html=True)
+        
+        with col2:
+            if st.button("📊 Popular Datasets", key="browse_popular"):
+                st.markdown(redirect_to_kaggle_search("popular"), unsafe_allow_html=True)
+        
+        with col3:
+            if st.button("🆕 Latest Datasets", key="browse_latest"):
+                st.markdown(redirect_to_kaggle_search("latest"), unsafe_allow_html=True)
         
         # File uploader for downloaded CSV
         st.subheader("📤 Upload Your Downloaded CSV File")
